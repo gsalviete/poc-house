@@ -259,16 +259,20 @@ textarea.input {
 /* ============ Cards ============ */
 
 .card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: rgba(34, 34, 46, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: all var(--transition-base);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
-  border-color: var(--color-border-light);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 16px rgba(232, 165, 75, 0.1);
+  transform: translateY(-4px);
 }
 
 .card__image {
@@ -276,6 +280,7 @@ textarea.input {
   height: 200px;
   object-fit: cover;
   background: var(--color-surface);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card__body {
@@ -286,6 +291,9 @@ textarea.input {
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin-bottom: var(--space-1);
+  background: linear-gradient(135deg, #ffffff, #a0a0b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .card__subtitle {
@@ -298,6 +306,7 @@ textarea.input {
   font-size: var(--font-size-xl);
   font-weight: 800;
   color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(232, 165, 75, 0.2);
 }
 
 /* ============ Badges ============ */
@@ -364,14 +373,15 @@ textarea.input {
 /* ============ Header ============ */
 
 .header {
-  padding: var(--space-5) 0;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-elevated);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(12px);
-  background: rgba(26, 26, 34, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(15, 15, 18, 0.7);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 .header__inner {
