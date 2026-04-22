@@ -11,14 +11,16 @@
     "seed:admin": "npx tsx scripts/seed-admin.ts"
   },
   "dependencies": {
-    "next": "^15.3.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "@supabase/supabase-js": "^2.49.4",
     "bcryptjs": "^2.4.3",
+    "framer-motion": "^12.38.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.8.0",
+    "next": "^15.3.1",
     "pg": "^8.13.3",
     "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
@@ -31,7 +33,7 @@
     "@types/react-dom": "^19.1.2",
     "eslint": "^9.25.1",
     "eslint-config-next": "^15.3.1",
-    "typescript": "^5.8.3",
-    "tsx": "^4.19.4"
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }
