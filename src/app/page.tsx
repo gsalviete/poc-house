@@ -20,15 +20,12 @@ interface Item {
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 22 } },
 };
 
 export default function HomePage() {
@@ -37,8 +34,8 @@ export default function HomePage() {
 
   useEffect(() => {
     fetch('/api/items')
-      .then((res) => res.json())
-      .then((data) => { setItems(data.items || []); setLoading(false); })
+      .then((r) => r.json())
+      .then((d) => { setItems(d.items || []); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
@@ -47,31 +44,54 @@ export default function HomePage() {
       <header className="header">
         <div className="container header__inner">
           <Link href="/" className="header__logo">
-            <Home className="text-primary" size={24} color="var(--color-primary)" />
-            <span>Nossa</span> Casa Nova
+            <Home size={20} color="var(--color-terra)" />
+            <span>Nossa</span>&nbsp;Casa Nova
           </Link>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
             <Link href="/contribute/free" className="btn btn--secondary btn--sm">
-              <Heart size={16} color="var(--color-primary)" /> Contribuição livre
+              <Heart size={14} color="var(--color-terra)" />
+              Contribuição livre
             </Link>
           </motion.div>
         </div>
       </header>
 
       <main className="container">
+        {/* ── Hero ── */}
         <motion.section
           className="page-hero"
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
         >
-          <h1 className="page-hero__title">Nossa Lista de Presentes</h1>
+          <div className="page-hero__eyebrow">
+            <Home size={12} />
+            Nossa Nova Casa
+          </div>
+
+          <h1 className="page-hero__title">
+            Lista de<br />
+            <em>Presentes</em>
+          </h1>
+
+          <div className="page-hero__divider">
+            <span className="page-hero__divider-line" />
+            <span className="page-hero__divider-gem" />
+            <span className="page-hero__divider-line" />
+          </div>
+
           <p className="page-hero__subtitle">
             Estamos montando nosso novo lar! Escolha um item e nos ajude a tornar
-            nossa casa mais especial. <Heart size={18} color="var(--color-primary)" style={{ display: 'inline', verticalAlign: 'text-bottom' }} />
+            nossa casa mais especial.{' '}
+            <Heart
+              size={16}
+              color="var(--color-terra)"
+              style={{ display: 'inline', verticalAlign: 'text-bottom' }}
+            />
           </p>
         </motion.section>
 
+        {/* ── Grid ── */}
         <section className="section">
           {loading ? (
             <div className="loading-screen">
@@ -80,15 +100,17 @@ export default function HomePage() {
           ) : items.length === 0 ? (
             <motion.div
               className="empty-state"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.45 }}
             >
               <div className="empty-state__icon">
-                <PackageOpen size={48} color="var(--color-text-secondary)" />
+                <PackageOpen size={48} color="var(--color-driftwood)" />
               </div>
               <div className="empty-state__text">Nenhum item disponível ainda</div>
-              <p style={{ color: 'var(--color-text-muted)' }}>Em breve teremos novidades!</p>
+              <p style={{ color: 'var(--color-driftwood)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
+                Em breve teremos novidades!
+              </p>
             </motion.div>
           ) : (
             <motion.div
@@ -98,9 +120,10 @@ export default function HomePage() {
               animate="show"
             >
               {items.map((item) => {
-                const progress = item.price_cents > 0
-                  ? Math.min(100, (item.total_contributed_cents / item.price_cents) * 100)
-                  : 0;
+                const progress =
+                  item.price_cents > 0
+                    ? Math.min(100, (item.total_contributed_cents / item.price_cents) * 100)
+                    : 0;
 
                 return (
                   <motion.div key={item.id} variants={itemVariants}>
@@ -113,31 +136,36 @@ export default function HomePage() {
                             className="card__image"
                           />
                         ) : (
-                          <div className="card__image" style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: 'var(--color-surface)',
-                          }}>
-                            <Gift size={48} color="var(--color-text-muted)" />
+                          <div
+                            className="card__image"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Gift size={48} color="var(--color-driftwood)" />
                           </div>
                         )}
+
                         <div className="card__body">
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-2)' }}>
                             <h2 className="card__title">{item.name}</h2>
                             {item.is_fully_funded && (
-                              <span className="badge badge--funded">
-                                <CheckCircle2 size={12} /> Completo
+                              <span className="badge badge--funded" style={{ flexShrink: 0 }}>
+                                <CheckCircle2 size={11} /> Completo
                               </span>
                             )}
                           </div>
+
                           {item.description && (
                             <p className="card__subtitle">
                               {item.description.length > 80
-                                ? item.description.substring(0, 80) + '...'
+                                ? item.description.slice(0, 80) + '…'
                                 : item.description}
                             </p>
                           )}
+
                           <div className="card__price">{formatCentsToBRL(item.price_cents)}</div>
 
                           <div className="progress">
@@ -145,17 +173,24 @@ export default function HomePage() {
                               className="progress__bar"
                               initial={{ width: 0 }}
                               animate={{ width: `${progress}%` }}
-                              transition={{ duration: 1, ease: 'easeOut' }}
+                              transition={{ duration: 1.1, ease: 'easeOut' }}
                             />
                           </div>
                           <div className="progress__text">
                             <span>{formatCentsToBRL(item.total_contributed_cents)} arrecadado</span>
-                            <span>{Math.round(progress)}%</span>
+                            <span style={{ fontWeight: 600, color: progress >= 100 ? 'var(--color-moss)' : undefined }}>
+                              {Math.round(progress)}%
+                            </span>
                           </div>
 
                           {item.contribution_count > 0 && (
-                            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: 'var(--space-2)' }}>
-                              {item.contribution_count} {item.contribution_count === 1 ? 'contribuição' : 'contribuições'}
+                            <p style={{
+                              fontSize: 'var(--font-size-xs)',
+                              color: 'var(--color-driftwood)',
+                              marginTop: 'var(--space-2)',
+                            }}>
+                              {item.contribution_count}{' '}
+                              {item.contribution_count === 1 ? 'contribuição' : 'contribuições'}
                             </p>
                           )}
                         </div>
@@ -169,15 +204,10 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer style={{
-        textAlign: 'center',
-        padding: 'var(--space-8)',
-        color: 'var(--color-text-muted)',
-        fontSize: 'var(--font-size-xs)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-        marginTop: 'var(--space-8)',
-      }}>
-        Feito com <Heart size={12} color="var(--color-primary)" style={{ display: 'inline', verticalAlign: 'middle' }} /> para nossa casa nova
+      <footer className="footer">
+        Feito com{' '}
+        <Heart size={12} color="var(--color-terra)" style={{ display: 'inline' }} />
+        {' '}para nossa casa nova
       </footer>
     </>
   );
