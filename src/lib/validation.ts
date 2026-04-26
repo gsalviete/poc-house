@@ -22,6 +22,7 @@ export const createContributionSchema = z.object({
     .int()
     .positive('Valor deve ser positivo')
     .max(100_000_00, 'Valor máximo: R$ 100.000'),
+  message: z.string().max(300).optional().nullable(),
 });
 
 export const updateContributionStatusSchema = z.object({

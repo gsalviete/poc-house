@@ -1,17 +1,31 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { PartyPopper, Home, ArrowLeft, Heart } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function ThankYouPage() {
+  useEffect(() => {
+    const end = Date.now() + 2200;
+    const colors = ['#B85C38', '#D0724E', '#5B7A5E', '#C4883A', '#FAF6EF'];
+
+    const frame = () => {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
+
   return (
     <>
       <header className="header">
         <div className="container header__inner">
           <Link href="/" className="header__logo">
             <Home size={20} color="var(--color-terra)" />
-            <span>Nossa</span>&nbsp;Casa Nova
+            <span>chá de casa</span>&nbsp;do sasa
           </Link>
         </div>
       </header>

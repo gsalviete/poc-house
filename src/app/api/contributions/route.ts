@@ -18,9 +18,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { item_id, contributor_name, amount_cents } = parsed.data;
+    const { item_id, contributor_name, amount_cents, message } = parsed.data;
 
-    // Validate item exists if item_id is provided
     if (item_id) {
       const itemResult = await query(
         'SELECT id FROM items WHERE id = $1 AND is_active = true',
@@ -31,21 +30,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create contribution
-    const result = await query<{ id: string }>(
-      `INSERT INTO contributions (item_id, contributor_name, amount_cents, status)
-       VALUES ($1, $2, $3, 'pending')
-       RETURNING id`,
-      [item_id || null, contributor_name.trim(), amount_cents]
-    );
-
-    const contributionId = result.rows[0].id;
+    // Gera o ID antecipado para montar o tx_id em uma única query
+    const contributionId = crypto.randomUUID();
     const txId = shortId(contributionId);
 
-    // Update pix_tx_id
-    await query('UPDATE contributions SET pix_tx_id = $1 WHERE id = $2', [txId, contributionId]);
+    await query(
+      `INSERT INTO contributions (id, item_id, contributor_name, amount_cents, pix_tx_id, message, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+      [contributionId, item_id || null, contributor_name.trim(), amount_cents, txId, message?.trim() || null]
+    );
 
-    // Generate Pix payload and QR
     const pixConfig = getPixConfig();
     const pixPayload = generatePixPayload({
       pixKey: pixConfig.pixKey,
@@ -58,13 +52,7 @@ export async function POST(req: NextRequest) {
     const pixQrBase64 = await generatePixQRCode(pixPayload);
 
     return NextResponse.json(
-      {
-        id: contributionId,
-        pix_payload: pixPayload,
-        pix_qr_base64: pixQrBase64,
-        tx_id: txId,
-        status: 'pending',
-      },
+      { id: contributionId, pix_payload: pixPayload, pix_qr_base64: pixQrBase64, tx_id: txId, status: 'pending' },
       { status: 201 }
     );
   } catch (err) {

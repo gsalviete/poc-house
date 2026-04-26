@@ -22,10 +22,10 @@ export async function GET(
     const item = itemResult.rows[0] as Record<string, unknown>;
 
     const contribResult = await query(
-      `SELECT contributor_name, amount_cents, status, created_at
+      `SELECT contributor_name, amount_cents, status, message, created_at
        FROM contributions
        WHERE item_id = $1 AND status = 'approved'
-       ORDER BY created_at DESC`,
+       ORDER BY created_at ASC`,
       [id]
     );
 

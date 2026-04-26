@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { formatCentsToBRL, formatDate } from '@/lib/format';
+import toast from 'react-hot-toast';
 
 interface Contribution {
   id: string;
   contributor_name: string;
   amount_cents: number;
+  message: string | null;
   receipt_url: string | null;
   status: 'pending' | 'approved' | 'rejected';
   pix_tx_id: string | null;
@@ -24,6 +26,8 @@ export default function AdminContributionsPage() {
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [processing, setProcessing] = useState<string | null>(null);
   const [receiptModal, setReceiptModal] = useState<string | null>(null);
+  const [rejectModal, setRejectModal] = useState<{ id: string } | null>(null);
+  const [rejectNotes, setRejectNotes] = useState('');
 
   const getToken = () => sessionStorage.getItem('admin_token') || '';
 
@@ -49,7 +53,6 @@ export default function AdminContributionsPage() {
 
   const handleUpdateStatus = async (id: string, status: 'approved' | 'rejected', notes?: string) => {
     setProcessing(id);
-
     try {
       const res = await fetch(`/api/admin/contributions/${id}`, {
         method: 'PATCH',
@@ -68,17 +71,25 @@ export default function AdminContributionsPage() {
         throw new Error(data.error);
       }
 
+      toast.success(status === 'approved' ? 'Contribuição aprovada!' : 'Contribuição rejeitada');
       fetchContributions();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erro ao atualizar status');
+      toast.error(err instanceof Error ? err.message : 'Erro ao atualizar status');
     } finally {
       setProcessing(null);
     }
   };
 
+  const handleRejectConfirm = async () => {
+    if (!rejectModal) return;
+    await handleUpdateStatus(rejectModal.id, 'rejected', rejectNotes || undefined);
+    setRejectModal(null);
+    setRejectNotes('');
+  };
+
   const statusBadge = (status: string) => {
     const map: Record<string, { class: string; label: string }> = {
-      pending: { class: 'badge--pending', label: '⏳ Pendente' },
+      pending:  { class: 'badge--pending',  label: '⏳ Pendente' },
       approved: { class: 'badge--approved', label: '✓ Aprovado' },
       rejected: { class: 'badge--rejected', label: '✕ Rejeitado' },
     };
@@ -86,9 +97,9 @@ export default function AdminContributionsPage() {
     return <span className={`badge ${s.class}`}>{s.label}</span>;
   };
 
-  const filters: { value: StatusFilter; label: string; count?: number }[] = [
-    { value: 'all', label: 'Todos' },
-    { value: 'pending', label: '⏳ Pendentes' },
+  const filters: { value: StatusFilter; label: string }[] = [
+    { value: 'all',      label: 'Todos' },
+    { value: 'pending',  label: '⏳ Pendentes' },
     { value: 'approved', label: '✓ Aprovados' },
     { value: 'rejected', label: '✕ Rejeitados' },
   ];
@@ -118,7 +129,9 @@ export default function AdminContributionsPage() {
       {contributions.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__icon">💰</div>
-          <div className="empty-state__text">Nenhuma contribuição {filter !== 'all' ? `com status "${filter}"` : ''}</div>
+          <div className="empty-state__text">
+            Nenhuma contribuição {filter !== 'all' ? `com status "${filter}"` : ''}
+          </div>
         </div>
       ) : (
         <div className="table-wrapper">
@@ -139,8 +152,13 @@ export default function AdminContributionsPage() {
                 <tr key={c.id}>
                   <td>
                     <div style={{ fontWeight: 600 }}>{c.contributor_name}</div>
+                    {c.message && (
+                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-walnut)', fontStyle: 'italic', marginTop: 2 }}>
+                        "{c.message}"
+                      </div>
+                    )}
                     {c.pix_tx_id && (
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', fontFamily: 'monospace' }}>
+                      <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', fontFamily: 'monospace', marginTop: 2 }}>
                         TX: {c.pix_tx_id}
                       </div>
                     )}
@@ -187,10 +205,7 @@ export default function AdminContributionsPage() {
                         </button>
                         <button
                           className="btn btn--danger btn--sm"
-                          onClick={() => {
-                            const notes = prompt('Motivo da rejeição (opcional):');
-                            handleUpdateStatus(c.id, 'rejected', notes || undefined);
-                          }}
+                          onClick={() => { setRejectNotes(''); setRejectModal({ id: c.id }); }}
                           disabled={processing === c.id}
                         >
                           ✕
@@ -222,6 +237,41 @@ export default function AdminContributionsPage() {
               alt="Comprovante de pagamento"
               style={{ width: '100%', borderRadius: 'var(--radius-md)' }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Reject Reason Modal */}
+      {rejectModal && (
+        <div className="modal-overlay" onClick={() => setRejectModal(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className="modal__header">
+              <h2 className="modal__title">Rejeitar contribuição</h2>
+              <button className="modal__close" onClick={() => setRejectModal(null)}>✕</button>
+            </div>
+            <div className="input-group" style={{ marginBottom: 'var(--space-5)' }}>
+              <label className="input-label" htmlFor="reject-notes">
+                Motivo <span style={{ fontWeight: 400, color: 'var(--color-driftwood)' }}>(opcional)</span>
+              </label>
+              <textarea
+                id="reject-notes"
+                className="input"
+                rows={3}
+                placeholder="Ex: Comprovante ilegível, valor incorreto..."
+                value={rejectNotes}
+                onChange={(e) => setRejectNotes(e.target.value)}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end' }}>
+              <button className="btn btn--ghost" onClick={() => setRejectModal(null)}>Cancelar</button>
+              <button
+                className="btn btn--danger"
+                onClick={handleRejectConfirm}
+                disabled={processing === rejectModal.id}
+              >
+                {processing === rejectModal.id ? <span className="spinner" /> : 'Rejeitar'}
+              </button>
+            </div>
           </div>
         </div>
       )}

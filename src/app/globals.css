@@ -627,6 +627,120 @@
     border-top: 1px solid var(--color-border);
     margin-top: var(--space-8);
   }
+
+  /* ── Photo Polaroid ── */
+  .photo-section {
+    @apply flex justify-center;
+    margin: 0 0 var(--space-10);
+  }
+  .photo-polaroid {
+    background: white;
+    padding: var(--space-4) var(--space-4) var(--space-6);
+    box-shadow: 0 8px 32px rgba(42,26,10,.14), 0 2px 8px rgba(42,26,10,.08);
+    border-radius: 2px;
+    max-width: 280px;
+    width: 100%;
+  }
+  .photo-polaroid__img {
+    @apply w-full block;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 1px;
+    background: var(--color-surface);
+  }
+  .photo-polaroid__caption {
+    text-align: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--font-size-sm);
+    color: var(--color-walnut);
+    margin-top: var(--space-4);
+    line-height: 1.5;
+  }
+
+  /* ── Global Progress ── */
+  .global-progress {
+    margin-bottom: var(--space-8);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5) var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .global-progress__header {
+    @apply flex justify-between items-center;
+    margin-bottom: var(--space-3);
+  }
+  .global-progress__label {
+    font-size: var(--font-size-sm);
+    color: var(--color-walnut);
+  }
+  .global-progress__pct {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-terra);
+  }
+
+  /* ── Contributors Section ── */
+  .contributors-section {
+    padding: var(--space-8) 0 var(--space-12);
+  }
+  .contributors-section__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-sand);
+    margin-bottom: var(--space-2);
+  }
+  .contributors-section__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-driftwood);
+    margin-bottom: var(--space-6);
+  }
+  .contributors-list {
+    @apply flex flex-col;
+    gap: var(--space-3);
+  }
+  .contributor-card {
+    @apply flex items-start gap-4;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-5);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast);
+  }
+  .contributor-card:hover { box-shadow: var(--shadow-md); }
+  .contributor-card__avatar {
+    @apply flex items-center justify-center font-bold flex-shrink-0;
+    width: 42px; height: 42px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-terra-light), var(--color-terra-dark));
+    color: white;
+    font-size: var(--font-size-base);
+    font-family: var(--font-display);
+  }
+  .contributor-card__info { @apply flex flex-col; gap: var(--space-1); min-width: 0; }
+  .contributor-card__name {
+    font-weight: 600;
+    color: var(--color-sand);
+    font-size: var(--font-size-base);
+  }
+  .contributor-card__meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-walnut);
+  }
+  .contributor-card__message {
+    font-size: var(--font-size-sm);
+    color: var(--color-driftwood);
+    font-style: italic;
+    margin-top: var(--space-1);
+    line-height: 1.5;
+  }
+
+  /* ── Badge fire ── */
+  .badge--fire { background: var(--color-amber-bg); color: var(--color-amber); border: 1px solid rgba(196,136,58,.25); }
 }
 
 /* ══════════════════════════════════════════

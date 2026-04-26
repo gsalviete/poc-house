@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { updateItemSchema } from '@/lib/validation';
-import { uploadItemImage } from '@/lib/storage';
+import { uploadItemImage, deleteItemImage, deleteReceipts } from '@/lib/storage';
 import { requireAdmin } from '@/lib/middleware/auth';
 
 export const dynamic = 'force-dynamic';
@@ -79,15 +79,28 @@ export const DELETE = requireAdmin(async (
   try {
     const { id } = await params;
 
-    // Soft delete: set is_active = false
-    const result = await query(
-      'UPDATE items SET is_active = false WHERE id = $1 RETURNING id',
-      [id]
-    );
-
-    if (result.rows.length === 0) {
+    const itemResult = await query('SELECT id FROM items WHERE id = $1', [id]);
+    if (itemResult.rows.length === 0) {
       return NextResponse.json({ error: 'Item não encontrado' }, { status: 404 });
     }
+
+    // Collect contribution IDs to delete their receipts from storage
+    const contribResult = await query(
+      'SELECT id FROM contributions WHERE item_id = $1',
+      [id]
+    );
+    const contributionIds = (contribResult.rows as { id: string }[]).map((r) => r.id);
+
+    // Delete storage files in parallel, then DB rows
+    await Promise.all([
+      deleteItemImage(id),
+      deleteReceipts(contributionIds),
+    ]);
+
+    // Contributions are deleted via ON DELETE CASCADE on the FK,
+    // but we delete explicitly to be safe if the constraint isn't set
+    await query('DELETE FROM contributions WHERE item_id = $1', [id]);
+    await query('DELETE FROM items WHERE id = $1', [id]);
 
     return NextResponse.json({ message: 'Item removido' });
   } catch (err) {

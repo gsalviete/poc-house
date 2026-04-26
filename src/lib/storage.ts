@@ -70,6 +70,18 @@ export async function getReceiptUrl(contributionId: string): Promise<string> {
   return data?.signedUrl || '';
 }
 
+export async function deleteItemImage(itemId: string): Promise<void> {
+  const supabase = getSupabase();
+  await supabase.storage.from('item-images').remove([`${itemId}.webp`]);
+}
+
+export async function deleteReceipts(contributionIds: string[]): Promise<void> {
+  if (contributionIds.length === 0) return;
+  const supabase = getSupabase();
+  const paths = contributionIds.map((id) => `${id}-receipt`);
+  await supabase.storage.from('receipts').remove(paths);
+}
+
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024;
 

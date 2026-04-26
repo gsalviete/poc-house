@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Playfair_Display, Outfit } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
 const playfair = Playfair_Display({
@@ -30,7 +31,24 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${playfair.variable} ${outfit.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              fontFamily: 'var(--outfit, system-ui, sans-serif)',
+              background: '#fff',
+              color: '#2A1A0A',
+              border: '1px solid #DDD0B3',
+              borderRadius: '10px',
+              boxShadow: '0 4px 16px rgba(42,26,10,0.12)',
+            },
+            success: { iconTheme: { primary: '#4A7A58', secondary: '#fff' } },
+            error:   { iconTheme: { primary: '#B03030', secondary: '#fff' } },
+          }}
+        />
+      </body>
     </html>
   );
 }

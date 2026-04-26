@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, FormEvent } from 'react';
 import { formatCentsToBRL } from '@/lib/format';
+import toast from 'react-hot-toast';
 
 interface Item {
   id: string;
@@ -113,17 +114,34 @@ export default function AdminItemsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja remover este item?')) return;
-
-    try {
-      await fetch(`/api/admin/items/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      fetchItems();
-    } catch {
-      alert('Erro ao remover item');
-    }
+    toast((t) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <span style={{ fontWeight: 600 }}>Remover este item?</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className="btn btn--danger btn--sm"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                await fetch(`/api/admin/items/${id}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${getToken()}` },
+                });
+                fetchItems();
+                toast.success('Item removido');
+              } catch {
+                toast.error('Erro ao remover item');
+              }
+            }}
+          >
+            Remover
+          </button>
+          <button className="btn btn--ghost btn--sm" onClick={() => toast.dismiss(t.id)}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   if (loading) {

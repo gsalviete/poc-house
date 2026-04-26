@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Heart, Gift, PackageOpen, CheckCircle2, Home } from 'lucide-react';
+import { Heart, Gift, PackageOpen, CheckCircle2, Home, Flame } from 'lucide-react';
 import { formatCentsToBRL } from '@/lib/format';
 
 interface Item {
@@ -12,32 +12,53 @@ interface Item {
   description: string;
   price_cents: number;
   image_url: string | null;
-  external_link: string | null;
   total_contributed_cents: number;
   contribution_count: number;
   is_fully_funded: boolean;
 }
 
+interface Stats {
+  total_goal_cents: number;
+  total_raised_cents: number;
+  contributors: {
+    contributor_name: string;
+    amount_cents: number;
+    message: string | null;
+    created_at: string;
+    item_name: string | null;
+  }[];
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  show:   { opacity: 1, transition: { staggerChildren: 0.07 } },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 22 } },
+  show:   { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 22 } },
 };
 
 export default function HomePage() {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems]   = useState<Item[]>([]);
+  const [stats, setStats]   = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    fetch('/api/items')
-      .then((r) => r.json())
-      .then((d) => { setItems(d.items || []); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch('/api/items').then((r) => r.json()),
+      fetch('/api/stats').then((r) => r.json()),
+    ])
+      .then(([itemsData, statsData]) => {
+        setItems(itemsData.items || []);
+        setStats(statsData);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  const globalProgress = stats && stats.total_goal_cents > 0
+    ? Math.min(100, (stats.total_raised_cents / stats.total_goal_cents) * 100)
+    : 0;
 
   return (
     <>
@@ -45,12 +66,12 @@ export default function HomePage() {
         <div className="container header__inner">
           <Link href="/" className="header__logo">
             <Home size={20} color="var(--color-terra)" />
-            <span>Nossa</span>&nbsp;Casa Nova
+            <span>chá de casa</span>&nbsp;do sasa
           </Link>
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
             <Link href="/contribute/free" className="btn btn--secondary btn--sm">
               <Heart size={14} color="var(--color-terra)" />
-              Contribuição livre
+              sou uma pessoa legal vou te fazer um pix
             </Link>
           </motion.div>
         </div>
@@ -66,12 +87,12 @@ export default function HomePage() {
         >
           <div className="page-hero__eyebrow">
             <Home size={12} />
-            Nossa Nova Casa
+            chá de casa do sasa
           </div>
 
           <h1 className="page-hero__title">
-            Lista de<br />
-            <em>Presentes</em>
+            Alguém me ajuda<br />
+            <em>porfavorzinho </em>
           </h1>
 
           <div className="page-hero__divider">
@@ -81,35 +102,51 @@ export default function HomePage() {
           </div>
 
           <p className="page-hero__subtitle">
-            Estamos montando nosso novo lar! Escolha um item e nos ajude a tornar
-            nossa casa mais especial.{' '}
-            <Heart
-              size={16}
-              color="var(--color-terra)"
-              style={{ display: 'inline', verticalAlign: 'text-bottom' }}
-            />
+            contribua e concorra a um churrasco na minha casa nova!{' '}
           </p>
         </motion.section>
 
-        {/* ── Grid ── */}
+        {/* ── Barra de progresso global ── */}
+        {stats && stats.total_goal_cents > 0 && (
+          <motion.div
+            className="global-progress"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <div className="global-progress__header">
+              <span className="global-progress__label">
+                {globalProgress >= 100
+                  ? '🎉 Meta atingida! Vocês são incríveis!'
+                  : `${formatCentsToBRL(stats.total_raised_cents)} arrecadados de ${formatCentsToBRL(stats.total_goal_cents)}`}
+              </span>
+              <span className="global-progress__pct">{Math.round(globalProgress)}%</span>
+            </div>
+            <div className="progress" style={{ height: 10 }}>
+              <motion.div
+                className="progress__bar"
+                initial={{ width: 0 }}
+                animate={{ width: `${globalProgress}%` }}
+                transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Grid de itens ── */}
         <section className="section">
           {loading ? (
-            <div className="loading-screen">
-              <div className="spinner spinner--lg" />
-            </div>
+            <div className="loading-screen"><div className="spinner spinner--lg" /></div>
           ) : items.length === 0 ? (
             <motion.div
               className="empty-state"
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.45 }}
             >
-              <div className="empty-state__icon">
-                <PackageOpen size={48} color="var(--color-driftwood)" />
-              </div>
-              <div className="empty-state__text">Nenhum item disponível ainda</div>
+              <div className="empty-state__icon"><PackageOpen size={48} color="var(--color-driftwood)" /></div>
+              <div className="empty-state__text">Calma, a lista tá vindo! 👀</div>
               <p style={{ color: 'var(--color-driftwood)', fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
-                Em breve teremos novidades!
+                Ainda não tem nada aqui, mas em breve você vai ter muito o que escolher.
               </p>
             </motion.div>
           ) : (
@@ -120,30 +157,19 @@ export default function HomePage() {
               animate="show"
             >
               {items.map((item) => {
-                const progress =
-                  item.price_cents > 0
-                    ? Math.min(100, (item.total_contributed_cents / item.price_cents) * 100)
-                    : 0;
+                const progress = item.price_cents > 0
+                  ? Math.min(100, (item.total_contributed_cents / item.price_cents) * 100)
+                  : 0;
+                const isNearComplete = progress >= 80 && progress < 100;
 
                 return (
                   <motion.div key={item.id} variants={itemVariants}>
                     <Link href={`/item/${item.id}`} style={{ textDecoration: 'none' }}>
                       <article className="card">
                         {item.image_url ? (
-                          <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="card__image"
-                          />
+                          <img src={item.image_url} alt={item.name} className="card__image" />
                         ) : (
-                          <div
-                            className="card__image"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
+                          <div className="card__image" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Gift size={48} color="var(--color-driftwood)" />
                           </div>
                         )}
@@ -151,18 +177,16 @@ export default function HomePage() {
                         <div className="card__body">
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-2)' }}>
                             <h2 className="card__title">{item.name}</h2>
-                            {item.is_fully_funded && (
-                              <span className="badge badge--funded" style={{ flexShrink: 0 }}>
-                                <CheckCircle2 size={11} /> Completo
-                              </span>
-                            )}
+                            {item.is_fully_funded
+                              ? <span className="badge badge--funded" style={{ flexShrink: 0 }}><CheckCircle2 size={11} /> Completo</span>
+                              : isNearComplete
+                              ? <span className="badge badge--fire" style={{ flexShrink: 0 }}><Flame size={11} /> Quase lá!</span>
+                              : null}
                           </div>
 
                           {item.description && (
                             <p className="card__subtitle">
-                              {item.description.length > 80
-                                ? item.description.slice(0, 80) + '…'
-                                : item.description}
+                              {item.description.length > 80 ? item.description.slice(0, 80) + '…' : item.description}
                             </p>
                           )}
 
@@ -184,13 +208,8 @@ export default function HomePage() {
                           </div>
 
                           {item.contribution_count > 0 && (
-                            <p style={{
-                              fontSize: 'var(--font-size-xs)',
-                              color: 'var(--color-driftwood)',
-                              marginTop: 'var(--space-2)',
-                            }}>
-                              {item.contribution_count}{' '}
-                              {item.contribution_count === 1 ? 'contribuição' : 'contribuições'}
+                            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-driftwood)', marginTop: 'var(--space-2)' }}>
+                              {item.contribution_count} {item.contribution_count === 1 ? 'pessoa ajudou' : 'pessoas ajudaram'} 🧡
                             </p>
                           )}
                         </div>
@@ -202,12 +221,59 @@ export default function HomePage() {
             </motion.div>
           )}
         </section>
+
+        {/* ── Quem já ajudou ── */}
+        {stats && stats.contributors.length > 0 && (
+          <motion.section
+            className="contributors-section"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <h2 className="contributors-section__title">
+              Quem já ajudou 🧡
+            </h2>
+            <p className="contributors-section__subtitle">
+              Essas pessoas são incríveis. Sério.
+            </p>
+
+            <div className="contributors-list">
+              {stats.contributors.map((c, i) => (
+                <motion.div
+                  key={i}
+                  className="contributor-card"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65 + i * 0.05 }}
+                >
+                  <div className="contributor-card__avatar">
+                    {c.contributor_name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="contributor-card__info">
+                    <div className="contributor-card__name">{c.contributor_name}</div>
+                    <div className="contributor-card__meta">
+                      <span style={{ color: 'var(--color-terra)', fontWeight: 600 }}>
+                        {formatCentsToBRL(c.amount_cents)}
+                      </span>
+                      {c.item_name
+                        ? <span style={{ color: 'var(--color-driftwood)' }}> · {c.item_name}</span>
+                        : <span style={{ color: 'var(--color-driftwood)', fontStyle: 'italic' }}> · contribuição livre</span>}
+                    </div>
+                    {c.message && (
+                      <p className="contributor-card__message">"{c.message}"</p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )}
       </main>
 
       <footer className="footer">
         Feito com{' '}
         <Heart size={12} color="var(--color-terra)" style={{ display: 'inline' }} />
-        {' '}para nossa casa nova
+        {' '}pra nossa casinha nova
       </footer>
     </>
   );

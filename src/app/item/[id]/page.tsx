@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Heart, ExternalLink, ArrowLeft, Gift, CheckCircle2, AlertCircle, Home } from 'lucide-react';
+import { Heart, ExternalLink, ArrowLeft, Gift, CheckCircle2, AlertCircle, Home, Share2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { formatCentsToBRL, formatDate } from '@/lib/format';
 
 interface ItemDetail {
@@ -67,13 +68,24 @@ export default function ItemDetailPage() {
   const progress = Math.min(100, (item.total_contributed_cents / item.price_cents) * 100);
   const isFullyFunded = item.total_contributed_cents >= item.price_cents;
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const text = `Oi! Dá uma olhada nesse item da lista de presentes do Sasa: ${item.name}`;
+    if (navigator.share) {
+      await navigator.share({ title: item.name, text, url }).catch(() => {});
+    } else {
+      await navigator.clipboard.writeText(url).catch(() => {});
+      toast.success('Link copiado!');
+    }
+  };
+
   return (
     <>
       <header className="header">
         <div className="container header__inner">
           <Link href="/" className="header__logo">
             <Home size={20} color="var(--color-terra)" />
-            <span>Nossa</span>&nbsp;Casa Nova
+            <span>chá de casa</span>&nbsp;do sasa
           </Link>
         </div>
       </header>
@@ -195,6 +207,11 @@ export default function ItemDetailPage() {
                   </a>
                 </motion.div>
               )}
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <button className="btn btn--ghost btn--lg" onClick={handleShare} title="Compartilhar">
+                  <Share2 size={18} />
+                </button>
+              </motion.div>
             </div>
 
             {item.contributions.length > 0 && (
