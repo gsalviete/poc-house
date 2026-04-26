@@ -72,7 +72,8 @@ export default function HomePage() {
             {/* mobile-first refactor: text hidden on small screens to prevent header overflow */}
             <Link href="/contribute/free" className="btn btn--secondary btn--sm">
               <Heart size={14} color="var(--color-terra)" />
-              <span className="btn-label-mobile-hidden">prefiro te fazer um pix</span>
+              <span className="btn-label-short">pix livre</span>
+              <span className="btn-label-full">prefiro te fazer um pix</span>
             </Link>
           </motion.div>
         </div>

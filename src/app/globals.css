@@ -200,8 +200,8 @@
   .btn--lg  { padding: var(--space-4) var(--space-8); font-size: var(--font-size-base); }
   .btn--full { @apply w-full; }
 
-  /* mobile-first refactor: hide/show header CTA text */
-  .btn-label-mobile-hidden { display: none; }
+  .btn-label-short  { display: inline; }
+  .btn-label-full   { display: none; }
 
   /* ── Inputs ── */
   .input-group { @apply flex flex-col gap-2; }
@@ -830,7 +830,8 @@
 
 /* ── 480px+: small tablet / large phone ── */
 @media (min-width: 480px) {
-  .btn-label-mobile-hidden { display: inline; }
+  .btn-label-short { display: none; }
+  .btn-label-full  { display: inline; }
   .header__logo { font-size: var(--font-size-xl); }
   .step-line { width: 40px; }
   .grid--items { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
