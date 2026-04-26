@@ -56,9 +56,6 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const globalProgress = stats && stats.total_goal_cents > 0
-    ? Math.min(100, (stats.total_raised_cents / stats.total_goal_cents) * 100)
-    : 0;
 
   return (
     <>
@@ -108,32 +105,6 @@ export default function HomePage() {
           </p>
         </motion.section>
 
-        {/* ── Barra de progresso global ── */}
-        {stats && stats.total_goal_cents > 0 && (
-          <motion.div
-            className="global-progress"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-          >
-            <div className="global-progress__header">
-              <span className="global-progress__label">
-                {globalProgress >= 100
-                  ? '🎉 Meta atingida! Vocês são incríveis!'
-                  : `${formatCentsToBRL(stats.total_raised_cents)} arrecadados de ${formatCentsToBRL(stats.total_goal_cents)}`}
-              </span>
-              <span className="global-progress__pct">{Math.round(globalProgress)}%</span>
-            </div>
-            <div className="progress" style={{ height: 10 }}>
-              <motion.div
-                className="progress__bar"
-                initial={{ width: 0 }}
-                animate={{ width: `${globalProgress}%` }}
-                transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
-              />
-            </div>
-          </motion.div>
-        )}
 
         {/* ── Grid de itens ── */}
         <section className="section">
