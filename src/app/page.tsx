@@ -66,12 +66,13 @@ export default function HomePage() {
         <div className="container header__inner">
           <Link href="/" className="header__logo">
             <Home size={20} color="var(--color-terra)" />
-            <span>chá de casa</span>&nbsp;do sasa
+            <span>chá de casa nova</span>
           </Link>
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+            {/* mobile-first refactor: text hidden on small screens to prevent header overflow */}
             <Link href="/contribute/free" className="btn btn--secondary btn--sm">
               <Heart size={14} color="var(--color-terra)" />
-              sou uma pessoa legal vou te fazer um pix
+              <span className="btn-label-mobile-hidden">prefiro te fazer um pix</span>
             </Link>
           </motion.div>
         </div>
@@ -87,12 +88,12 @@ export default function HomePage() {
         >
           <div className="page-hero__eyebrow">
             <Home size={12} />
-            chá de casa do sasa
+            chá de casa nova
           </div>
 
           <h1 className="page-hero__title">
-            Alguém me ajuda<br />
-            <em>porfavorzinho </em>
+            me ajuda a não<br />
+            <em>sobreviver só de miojo!</em> 🙏🏽
           </h1>
 
           <div className="page-hero__divider">
@@ -270,11 +271,6 @@ export default function HomePage() {
         )}
       </main>
 
-      <footer className="footer">
-        Feito com{' '}
-        <Heart size={12} color="var(--color-terra)" style={{ display: 'inline' }} />
-        {' '}pra nossa casinha nova
-      </footer>
     </>
   );
 }

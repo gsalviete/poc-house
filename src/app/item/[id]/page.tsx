@@ -85,7 +85,7 @@ export default function ItemDetailPage() {
         <div className="container header__inner">
           <Link href="/" className="header__logo">
             <Home size={20} color="var(--color-terra)" />
-            <span>chá de casa</span>&nbsp;do sasa
+            <span>chá de casa nova</span>
           </Link>
         </div>
       </header>
@@ -97,20 +97,12 @@ export default function ItemDetailPage() {
           </Link>
         </div>
 
+        {/* mobile-first refactor: moved inline grid to .detail-grid CSS class */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 'var(--space-8)',
-            background: 'var(--color-bg-card)',
-            padding: 'var(--space-6)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-md)',
-          }}
+          className="detail-grid"
         >
           {/* ── Imagem ── */}
           <div>
